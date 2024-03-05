@@ -9,8 +9,8 @@ type App struct {
 	fiber *fiber.App
 }
 
-func New() *App {
-	app := fiber.New()
+func New(cfg ...fiber.Config) *App {
+	app := fiber.New(cfg...)
 	return &App{
 		fiber: app,
 	}
