@@ -21,3 +21,11 @@ func (app *App) Run(port string) {
 		log.Fatal("Run app error: ", err)
 	}
 }
+
+func (app *App) Fiber() *fiber.App {
+	return app.fiber
+}
+
+func (app *App) Router() fiber.Router {
+	return app.fiber
+}
