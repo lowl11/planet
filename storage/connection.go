@@ -1,15 +1,18 @@
 package storage
 
 import (
-	"database/sql"
 	"errors"
 	"github.com/jackc/pgx/v4"
 	"github.com/jackc/pgx/v4/stdlib"
 	"github.com/jmoiron/sqlx"
-	"github.com/lowl11/boost/pkg/system/di"
-	"github.com/lowl11/boost/pkg/web/destroyer"
 	"github.com/lowl11/planet/log"
 	"time"
+)
+
+var (
+	_registerConnection = func() *sqlx.DB {
+		return nil
+	}
 )
 
 func Connect(connectionString string, options ...func(connection *sqlx.DB)) (*sqlx.DB, error) {
@@ -41,22 +44,13 @@ func MustConnect(connectionString string, options ...func(connection *sqlx.DB)) 
 }
 
 func RegisterConnect(connectionString string, options ...func(connection *sqlx.DB)) {
-	di.Register[sqlx.DB](func() *sqlx.DB {
+	_registerConnection = func() *sqlx.DB {
 		return MustConnect(connectionString, options...)
-	})
-
-	destroyer.Get().AddFunction(func() {
-		connection := di.Get[sql.DB]()
-		if connection != nil {
-			if err := connection.Close(); err != nil {
-				log.Error("Close database connection error:", err)
-			}
-		}
-	})
+	}
 }
 
 func Ping() error {
-	connection := di.Get[sqlx.DB]()
+	connection := _registerConnection()
 	if connection == nil {
 		return errors.New("no database connection")
 	}
@@ -79,7 +73,7 @@ func Close(connection ...*sqlx.DB) {
 		return
 	}
 
-	containerConnection := di.Get[sqlx.DB]()
+	containerConnection := _registerConnection()
 	if containerConnection == nil {
 		return
 	}

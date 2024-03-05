@@ -4,7 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/jmoiron/sqlx"
-	"github.com/lowl11/boost/log"
+	"github.com/lowl11/planet/log"
 	"strings"
 )
 
@@ -61,7 +61,7 @@ func RollbackTx(ctx context.Context) error {
 
 func MustRollbackTx(ctx context.Context) {
 	if err := RollbackTx(ctx); err != nil {
-		log.Error("Rollback transaction error:", err)
+		log.Error("Rollback transaction error: ", err)
 	}
 }
 
@@ -84,6 +84,6 @@ func CommitTx(ctx context.Context) error {
 
 func MustCommitTx(ctx context.Context) {
 	if err := CommitTx(ctx); err != nil {
-		log.Error("Commit transaction error:", err)
+		log.Error("Commit transaction error: ", err)
 	}
 }

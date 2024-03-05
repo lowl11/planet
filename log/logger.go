@@ -109,5 +109,6 @@ func (logger *logger) listen() {
 }
 
 func (logger *logger) printLog(logFunc func()) {
-	logger.logChannel <- logFunc
+	logFunc()
+	//logger.logChannel <- logFunc
 }

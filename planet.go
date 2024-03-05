@@ -26,6 +26,10 @@ func (app *App) Fiber() *fiber.App {
 	return app.fiber
 }
 
+func (app *App) With(wrap func(app *fiber.App)) {
+	wrap(app.fiber)
+}
+
 func (app *App) Router() fiber.Router {
 	return app.fiber
 }

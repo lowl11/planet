@@ -4,8 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"github.com/jmoiron/sqlx"
-	"github.com/lowl11/boost/log"
-	"github.com/lowl11/boost/pkg/system/di"
+	"github.com/lowl11/planet/log"
 	"strings"
 )
 
@@ -38,7 +37,7 @@ type repository struct {
 
 func NewRepo() Repository {
 	return repository{
-		connection: di.Get[sqlx.DB](),
+		connection: _registerConnection(),
 	}
 }
 
@@ -57,7 +56,7 @@ func (repo repository) DB(ctx context.Context) DB {
 
 func (repo repository) CloseRows(rows *sqlx.Rows) {
 	if err := rows.Close(); err != nil {
-		log.Error("Closing rows error:", err)
+		log.Error("Closing rows error: ", err)
 	}
 }
 
@@ -85,7 +84,7 @@ func rollback(transaction *sqlx.Tx) {
 			err.Error(),
 			"transaction has already been committed or rolled back",
 		) {
-			log.Error("Rollback transaction error:", err)
+			log.Error("Rollback transaction error: ", err)
 		}
 	}
 }
