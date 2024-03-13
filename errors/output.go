@@ -9,8 +9,13 @@ type output struct {
 }
 
 func (e *planetError) Output() []byte {
+	var innerErrorMessage string
+	if e.inner != nil {
+		innerErrorMessage = ": " + e.inner.Error()
+	}
+
 	errorInBytes, err := json.Marshal(output{
-		Message: e.message,
+		Message: e.message + innerErrorMessage,
 		Code:    e.httpCode,
 		Context: e.ctx,
 	})

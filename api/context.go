@@ -78,18 +78,32 @@ func (ctx *Context) Created(id ...any) error {
 }
 
 func (ctx *Context) Error(err error) error {
-	defer log.Error(err)
+	ctx.ContentType("application/json")
 
-	if planetErr, ok := err.(errors.Error); ok {
+	code := ctx.inner.Response().StatusCode()
+
+	var planetErr errors.Error
+	defer func() {
+		log.Error(planetErr)
+	}()
+
+	planetErr, ok := err.(errors.Error)
+	if ok {
 		return ctx.
 			Status(planetErr.HttpCode()).inner.
 			Send(planetErr.Output())
 	}
 
-	return ctx.inner.Send(errors.
-		New("Untyped error").
-		SetError(err).
-		Output())
+	if planetErr == nil {
+		planetErr = errors.
+			New("Untyped error").
+			SetHTTP(code).
+			SetError(err)
+	}
+
+	return ctx.
+		Status(code).inner.
+		Send(planetErr.Output())
 }
 
 func (ctx *Context) Bytes(body []byte) error {

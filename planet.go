@@ -1,8 +1,9 @@
 package planet
 
 import (
+	"errors"
 	"github.com/gofiber/fiber/v2"
-	"github.com/lowl11/planet/errors"
+	"github.com/lowl11/planet/api"
 	"github.com/lowl11/planet/log"
 	"net/http"
 	"os"
@@ -25,17 +26,15 @@ func New(cfg ...fiber.Config) *App {
 
 	handlerCfg.ReadBufferSize = 20480
 	handlerCfg.ErrorHandler = func(ctx *fiber.Ctx, err error) error {
-		log.Error(err)
-
-		if planetErr, ok := err.(errors.Error); ok {
-			ctx.Response().Header.Set("Content-Type", "application/json")
-			ctx.Response().SetStatusCode(planetErr.HttpCode())
-			return ctx.Send(planetErr.Output())
+		code := http.StatusInternalServerError
+		if errors.Is(err, fiber.ErrMethodNotAllowed) {
+			code = http.StatusMethodNotAllowed
 		}
 
-		return errors.
-			New(err.Error()).
-			SetHTTP(http.StatusInternalServerError)
+		return api.
+			New(ctx).
+			Status(code).
+			Error(err)
 	}
 
 	app := fiber.New(*handlerCfg)
